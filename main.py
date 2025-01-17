@@ -89,7 +89,7 @@ learning_rate = 0.3
 n = neuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 
 #load the mnist training data
-data_file = open("../mnist_dataset/mnist_train_100.csv", 'r')
+data_file = open("../mnist_dataset/mnist_train.csv", 'r')
 data_list = data_file.readlines()
 data_file.close()
 
@@ -104,20 +104,31 @@ for record in data_list:
 
 
 #load the mnist test data
-data_file = open("../mnist_dataset/mnist_test_10.csv", 'r')
+data_file = open("../mnist_dataset/mnist_test.csv", 'r')
 data_list = data_file.readlines()
 data_file.close()
 
-#test the neural network
-all_values = data_list[0].split(',')
-print(all_values[0])
-# # Display the image
-image_array = numpy.asarray(all_values[1:], dtype=float).reshape((28, 28))
-mathplot.imshow(image_array, cmap='Greys', interpolation='None')
-mathplot.show()
+#test the neural network and keep a score to measure its performance
+scorecard = []
+for record in data_list:
+    all_values = record.split(',')
+    correct_label = int(all_values[0])
+    print(correct_label, "correct label")
+    inputs = (numpy.asarray(all_values[1:], dtype=float) / 255.0 * 0.99) + 0.01
+    outputs = n.query(inputs)
+    label = numpy.argmax(outputs)
+    print(label, "network's answer")
+    if label == correct_label:
+        scorecard.append(1)
+    else:
+        scorecard.append(0)
 
-result = n.query((numpy.asarray(all_values[1:], dtype=float) / 255.0 * 0.99) + 0.01)
-print(result)
+scorecard_array = numpy.asarray(scorecard)
+
+#calculate the performance of the neural network
+performance = scorecard_array.sum() / scorecard_array.size
+
+print(performance * 100, "%")
 
 
 
